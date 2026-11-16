@@ -329,6 +329,7 @@ function Invoke-Cycle {
 
     $r = Clear-Portal
     if ($r -eq 'QUOTA') {
+        if (Test-Internet) { Say 'Compte actif malgre le refus du portail, MAC conservee.' 'DarkGray'; return $true }
         if ($Profondeur -ge 3) { Say 'Trop de MAC deja consommees de suite.' 'Red'; return $false }
         Say 'Appareil deja consomme, nouveau cycle avec une autre MAC.' 'DarkYellow'
         return Invoke-Cycle -Profondeur ($Profondeur + 1)
