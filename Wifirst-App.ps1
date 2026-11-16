@@ -178,7 +178,10 @@ function Demarrer-Moteur {
 }
 
 $Demarrer.Add_Click({ Demarrer-Moteur })
-$win.Add_Loaded({ Demarrer-Moteur })
+$win.Add_Loaded({
+    if ([Consoleur]::GetConsoleWindow() -ne [IntPtr]::Zero) { [Consoleur]::ShowWindow([Consoleur]::GetConsoleWindow(), 0) | Out-Null }
+    Demarrer-Moteur
+})
 
 $Arreter.Add_Click({
     if ($script:proc -and -not $script:proc.HasExited) { $script:proc.Kill(); $Info.Text = 'Arrete' }
