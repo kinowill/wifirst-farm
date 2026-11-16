@@ -299,6 +299,8 @@ function Clear-Portal {
     if ($radius -eq 'ONLINE') { return $true }
     if (-not $radius) { return $false }
     if (Connect-Portal -Radius $radius -Jar $jar) {
+        $script:radiusCourant = $radius
+        $script:jarCourant = $jar
         Start-Sleep -Seconds 10
         if (-not (Test-Internet)) {
             Say 'Session retombee juste apres le login, nouvelle tentative de connexion.' 'DarkYellow'
@@ -382,8 +384,17 @@ while ($true) {
 
         Say "Surveillance active (renouvellement au plus tard dans $([math]::Round($Config.Renouveler / 60)) min)." 'DarkGray'
         $limite = (Get-Date).AddSeconds($Config.Renouveler)
+        $tick = 0
         while ((Get-Date) -lt $limite) {
             Start-Sleep -Seconds $Config.Surveillance
+            $tick++
+            # toutes les 60 s, on reprend la main sur la session : un navigateur connecte
+            # finit toujours par perdre la course.
+            if ($tick % 6 -eq 0 -and $script:radiusCourant) {
+                if (-not (Connect-Portal -Radius $script:radiusCourant -Jar $script:jarCourant)) {
+                    Say 'Reprise de session impossible, reveil.' 'DarkGray'
+                }
+            }
             Invoke-Entretien
             if (-not (Test-Internet)) {
                 Say 'Connexion perdue, reveal immediat.' 'DarkYellow'
