@@ -181,7 +181,7 @@ function Maj {
 
 function Demarrer-Moteur {
     if ($script:proc -and -not $script:proc.HasExited) { return }
-    $script:proc = Start-Process powershell.exe -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$Engine`"" -WindowStyle Hidden -PassThru
+    $script:proc = Start-Process powershell.exe -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$Engine`"", '-Force' -WindowStyle Hidden -PassThru
     $Info.Text = 'Demarre'
 }
 
@@ -211,6 +211,7 @@ $timer.Add_Tick({ Maj })
 $timer.Start()
 
 $win.ShowDialog() | Out-Null
+
 
 
 
