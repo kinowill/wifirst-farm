@@ -244,7 +244,7 @@ function New-Compte {
 }
 
 function Connect-Portal {
-    param($Radius, [string]$Jar)
+    param($Radius, [string]$Jar, [switch]$Silencieux)
     for ($essai = 1; $essai -le 3; $essai++) {
         $h = (& curl.exe -k -s -S -b $Jar -c $Jar -A $Config.UserAgent -o NUL -D - --max-time 30 `
             --data-urlencode "username=$($Radius.login)" `
@@ -253,7 +253,7 @@ function Connect-Portal {
             --data-urlencode "error_url=$($Config.Front)/connect-error" `
             --data-urlencode 'update_session=1' $Config.LoginUrl 2>&1) | Out-String
         $head = ($h -split "`n" | Where-Object { $_ -match '^(HTTP|Location)' }) -join ' | '
-        Say "Connexion (essai $essai) : $head" 'Gray'
+        if (-not $Silencieux) { Say "Connexion (essai $essai) : $head" 'Gray' }
         Start-Sleep -Seconds 3
         if (Test-Internet) { return $true }
         Start-Sleep -Seconds 3
@@ -388,10 +388,9 @@ while ($true) {
         while ((Get-Date) -lt $limite) {
             Start-Sleep -Seconds $Config.Surveillance
             $tick++
-            # toutes les 60 s, on reprend la main sur la session : un navigateur connecte
-            # finit toujours par perdre la course.
-            if ($tick % 6 -eq 0 -and $script:radiusCourant) {
-                if (-not (Connect-Portal -Radius $script:radiusCourant -Jar $script:jarCourant)) {
+            # toutes les 20 s, on reprend la main avant l'expiration (~35 s)
+            if ($tick % 2 -eq 0 -and $script:radiusCourant) {
+                if (-not (Connect-Portal -Radius $script:radiusCourant -Jar $script:jarCourant -Silencieux)) {
                     Say 'Reprise de session impossible, reveil.' 'DarkGray'
                 }
             }
@@ -411,6 +410,10 @@ while ($true) {
         Start-Sleep -Seconds 30
     }
 }
+
+
+
+
 
 
 
