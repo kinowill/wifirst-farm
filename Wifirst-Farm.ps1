@@ -396,10 +396,19 @@ while ($true) {
             }
             Invoke-Entretien
             if (-not (Test-Internet)) {
-                Say 'Connexion perdue, reveal immediat.' 'DarkYellow'
-                $revenu = Invoke-Reveil
+                Say 'Connexion perdue.' 'DarkYellow'
+                $revenu = $false
+                # 1) on retente le compte en cours (aucun compte perdu)
+                if ($script:radiusCourant) {
+                    for ($i = 1; $i -le 3; $i++) {
+                        if (Connect-Portal -Radius $script:radiusCourant -Jar $script:jarCourant -Silencieux) { $revenu = $true; break }
+                        Start-Sleep -Seconds 5
+                    }
+                }
+                # 2) sinon on reveille le portail
+                if (-not $revenu) { $revenu = Invoke-Reveil }
                 if ($revenu) { continue }
-                Say 'Reveil impossible, cycle complet.' 'DarkYellow'
+                Say 'Compte injoignable, cycle complet.' 'DarkYellow'
                 break
             }
         }
