@@ -245,7 +245,8 @@ function New-Compte {
 
 function Connect-Portal {
     param($Radius, [string]$Jar, [switch]$Silencieux)
-    for ($essai = 1; $essai -le 3; $essai++) {
+    $essais = if ($Silencieux) { 1 } else { 3 }
+    for ($essai = 1; $essai -le $essais; $essai++) {
         $h = (& curl.exe -k -s -S -b $Jar -c $Jar -A $Config.UserAgent -o NUL -D - --max-time 30 `
             --data-urlencode "username=$($Radius.login)" `
             --data-urlencode "password=$($Radius.password)" `
@@ -400,9 +401,9 @@ while ($true) {
                 $revenu = $false
                 # 1) on retente le compte en cours (aucun compte perdu)
                 if ($script:radiusCourant) {
-                    for ($i = 1; $i -le 3; $i++) {
+                    for ($i = 1; $i -le 2; $i++) {
                         if (Connect-Portal -Radius $script:radiusCourant -Jar $script:jarCourant -Silencieux) { $revenu = $true; break }
-                        Start-Sleep -Seconds 5
+                        Start-Sleep -Seconds 4
                     }
                 }
                 # 2) sinon on reveille le portail
