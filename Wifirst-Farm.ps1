@@ -301,15 +301,14 @@ function Clear-Portal {
     if (Connect-Portal -Radius $radius -Jar $jar) {
         $script:radiusCourant = $radius
         $script:jarCourant = $jar
-        Start-Sleep -Seconds 10
-        if (-not (Test-Internet)) {
-            Say 'Session retombee juste apres le login, nouvelle tentative de connexion.' 'DarkYellow'
-            if (-not (Connect-Portal -Radius $radius -Jar $jar)) { return $false }
+        # la box peut couper juste apres le login : on insiste au lieu d'abandonner le compte
+        for ($i = 1; $i -le 8; $i++) {
+            Start-Sleep -Seconds 5
+            if (Test-Internet) { return $true }
+            & curl.exe -k -s -o NUL -A $Config.UserAgent --max-time 5 "$($Config.Front)/" 2>&1 | Out-Null
+            if (Test-Internet) { return $true }
         }
-        foreach ($i in 1, 2) {
-            Start-Sleep -Seconds 10
-            if (-not (Test-Internet)) { Say "Session instable (controle $i/2)." 'DarkYellow'; return $false }
-        }
+        Say 'Session instable apres creation, on garde le compte.' 'DarkYellow'
         return $true
     }
 
