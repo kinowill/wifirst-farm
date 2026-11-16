@@ -183,6 +183,13 @@ Statuts : `prouvé` (observé directement), `à confirmer` (déduit, non testé)
 - Conséquence : une seule identité à la fois. Fermer ou déconnecter le portail dans le navigateur pendant
   que le script tourne.
 
+## V-24 — cycle unique stable, sans changement de MAC — prouvé — 2026-11-16 23:16
+
+- Source : `logs/20261116-231141.farm.log`, MAC `02-C3-D4-B2-35-AC`.
+- Observable : un seul compte cree, aucune coupure sur quatre minutes, acces `204` continu ; le cycle
+  n'abandonne plus le compte sur une coupure passagere et ne change plus de MAC si l'acces est actif.
+- Conséquence : comportement cible atteint. Reste l'observation longue (T-4).
+
 ## V-20 — durée réelle du crédit — à confirmer
 
 - Source : réponse de création, champ `free_ran_elligible: false` ; aucune expiration exposée côté client.
