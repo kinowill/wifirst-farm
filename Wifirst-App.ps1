@@ -100,7 +100,7 @@ public class Consoleur {
     </Grid>
 
     <TextBox Grid.Row="5" x:Name="Journal" Margin="0,16,0,12" FontSize="11" VerticalScrollBarVisibility="Auto"
-             TextWrapping="NoWrap" HorizontalScrollBarVisibility="Auto" Background="#0B0F13"/>
+             TextWrapping="Wrap" HorizontalScrollBarVisibility="Disabled" Background="#0B0F13"/>
 
     <StackPanel Grid.Row="6" Orientation="Horizontal">
       <Button x:Name="Demarrer" Content="Demarrer"/>
@@ -128,12 +128,20 @@ function Lire-Compte {
     }
     $Email.Text = if ($lignes['email']) { $lignes['email'] } else { '-' }
     $Pass.Text  = if ($lignes['password']) { $lignes['password'] } else { '-' }
+    $actuelle = (Get-CimInstance Win32_NetworkAdapter -Filter "NetConnectionID='Wi-Fi'" -ErrorAction SilentlyContinue).MACAddress
+    if ($lignes['mac'] -and $actuelle -and $lignes['mac'] -ne $actuelle) {
+        $Info.Text = 'compte en cours de remplacement'
+        $Info.Foreground = [Windows.Media.Brushes]::Orange
+    }
+    else {
+        $Info.Foreground = [Windows.Media.Brushes]::Gray
+    }
 }
 
 function Journaliser {
     $f = Get-ChildItem (Join-Path $Logs '*.farm.log') -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Desc | Select-Object -First 1
     if (-not $f) { return }
-    $t = Get-Content $f.FullName -Tail 40 -ErrorAction SilentlyContinue
+    $t = Get-Content $f.FullName -Tail 22 -ErrorAction SilentlyContinue
     if ($t) {
         $Journal.Text = ($t -join "`r`n")
         $Journal.ScrollToEnd()
@@ -173,12 +181,15 @@ function Maj {
 
 function Demarrer-Moteur {
     if ($script:proc -and -not $script:proc.HasExited) { return }
-    $script:proc = Start-Process powershell.exe -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$Engine`"", '-Force' -WindowStyle Hidden -PassThru
+    $script:proc = Start-Process powershell.exe -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$Engine`"" -WindowStyle Hidden -PassThru
     $Info.Text = 'Demarre'
 }
 
 $Demarrer.Add_Click({ Demarrer-Moteur })
 $win.Add_Loaded({
+    $h = (New-Object System.Windows.Interop.WindowInteropHelper($win)).Handle
+    if ($h -ne [IntPtr]::Zero) { [Consoleur]::ShowWindow($h, 5) | Out-Null }
+    $win.Activate() | Out-Null
     if ([Consoleur]::GetConsoleWindow() -ne [IntPtr]::Zero) { [Consoleur]::ShowWindow([Consoleur]::GetConsoleWindow(), 0) | Out-Null }
     Demarrer-Moteur
 })
@@ -200,4 +211,9 @@ $timer.Add_Tick({ Maj })
 $timer.Start()
 
 $win.ShowDialog() | Out-Null
+
+
+
+
+
 

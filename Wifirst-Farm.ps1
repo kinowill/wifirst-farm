@@ -332,7 +332,18 @@ function Invoke-Cycle {
         Say 'Appareil deja consomme, nouveau cycle avec une autre MAC.' 'DarkYellow'
         return Invoke-Cycle -Profondeur ($Profondeur + 1)
     }
-    return [bool]$r
+    if ($r) { return $true }
+
+    # echec de creation (souvent un 504 du portail) : on garde la MAC et on retente plus tard
+    foreach ($pause in 30, 90) {
+        Say "Portail en echec, nouvelle tentative sur la meme MAC dans $pause s." 'DarkYellow'
+        Start-Sleep -Seconds $pause
+        if (Test-Internet) { return $true }
+        $r = Clear-Portal
+        if ($r -eq 'QUOTA') { break }
+        if ($r) { return $true }
+    }
+    return $false
 }
 
 # ------------------------------------------------------------------ principal
