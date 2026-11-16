@@ -137,7 +137,7 @@ function Invoke-Reveil {
     # le navigateur. Beaucoup plus econome qu'un nouveau compte.
     Say 'Reveil du portail (session existante)...' 'DarkGray'
     foreach ($url in @("$($Config.Front)/", 'https://portal.wifirst.net/', $Config.TokenUrl)) {
-        & curl.exe -k -s -o NUL -A $Config.UserAgent --max-time 10 $url 2>&1 | Out-Null
+        & curl.exe -k -s -o NUL -A $Config.UserAgent --max-time 5 $url 2>&1 | Out-Null
         Start-Sleep -Seconds 1
         if (Test-Internet) { Say 'Session reactivee.' 'Green'; return $true }
     }
@@ -400,6 +400,7 @@ while ($true) {
         Start-Sleep -Seconds 30
     }
 }
+
 
 
 
