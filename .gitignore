@@ -1,0 +1,6 @@
+logs/
+state/
+*.jar
+*.body
+*.trace
+evidence/*.js
