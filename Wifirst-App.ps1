@@ -14,9 +14,18 @@ function Test-Admin {
         [Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 if (-not (Test-Admin)) {
-    Start-Process powershell.exe -Verb RunAs -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-File', "`"$PSCommandPath`""
+    Start-Process powershell.exe -Verb RunAs -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$PSCommandPath`""
     exit
 }
+
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class Consoleur {
+  [DllImport("kernel32.dll")] public static extern IntPtr GetConsoleWindow();
+  [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int c);
+}
+"@
 
 [xml]$xaml = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -132,8 +141,8 @@ function Journaliser {
 }
 
 function Maj {
-    $mac = (Get-CimInstance Win32_NetworkAdapter -Filter "NetConnectionID='Wi-Fi'" -ErrorAction SilentlyContinue).MACAddress
-    $Mac.Text = if ($mac) { $mac } else { '-' }
+    $adresse = (Get-CimInstance Win32_NetworkAdapter -Filter "NetConnectionID='Wi-Fi'" -ErrorAction SilentlyContinue).MACAddress
+    $Mac.Text = if ($adresse) { $adresse } else { '-' }
     Lire-Compte
     Journaliser
     $code = (& curl.exe -k -s -o NUL -w '%{http_code}' --max-time 3 'https://www.google.com/generate_204') | Out-String

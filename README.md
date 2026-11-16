@@ -28,9 +28,15 @@ La MAC d'origine est sauvegardée au premier lancement et restaurée sur `Ctrl+C
 
 ## Utilisation
 
-- `Wifirst-Farm.bat` : démarre en administrateur et tourne en continu.
+- Raccourci **Wifirst** sur le bureau : ouvre la fenêtre de contrôle. Elle démarre le service
+  toute seule et affiche l'état, la MAC en cours, l'e-mail et le mot de passe du compte actif, avec
+  boutons de copie.
+- `Wifirst-Farm.bat` : même service, sans fenêtre de contrôle.
 - `powershell -ExecutionPolicy Bypass -File Wifirst-Farm.ps1 -Once` : un seul cycle.
 - `powershell -ExecutionPolicy Bypass -File Wifirst-Farm.ps1 -Restore` : rend la MAC d'origine.
+
+Une seule identité à la fois : pendant que le service tourne, ne reste pas connecté au portail dans
+le navigateur, sinon les deux sessions se disputent la même MAC.
 
 Réglages en tête de script : interface, SSID, délais.
 
